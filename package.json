@@ -1,0 +1,22 @@
+{
+  "name": "gwhid",
+  "version": "0.0.0",
+  "description": "github-what-have-i-done: cli output of the github private events feed",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danielbeardsley/gwhid"
+  },
+  "author": {
+    "name": "Daniel Beardsley",
+    "email": "daniel.beardsley@gmail.com"
+  }
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/danielbeardsley/gwhid/issues"
+  },
+  "homepage": "https://github.com/danielbeardsley/gwhid"
+}

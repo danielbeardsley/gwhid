@@ -13,10 +13,14 @@
   "author": {
     "name": "Daniel Beardsley",
     "email": "daniel.beardsley@gmail.com"
-  }
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/danielbeardsley/gwhid/issues"
   },
-  "homepage": "https://github.com/danielbeardsley/gwhid"
+  "homepage": "https://github.com/danielbeardsley/gwhid",
+  "dependencies": {
+    "github": "0.2.1",
+    "promise": "5.0.0"
+  }
 }

@@ -1,10 +1,11 @@
 var GitConfig = require('./git-config.js');
 var GitHubApi = require('github');
 var Promise   = require("promise");
+var userPromise = GitConfig.getGithubUser();
 
 module.exports = {
    stream: function(callback) {
-      Promise.all([getGithub(), GitConfig.getGithubUser()]).done(
+      Promise.all([githubPromise, userPromise]).done(
       function(results) {
          var github = results[0],
              user = results[1];
@@ -20,7 +21,8 @@ module.exports = {
    }
 };
 
-function getGithub() {
+
+var githubPromise = (function getGithub() {
    var github = new GitHubApi({
        version: "3.0.0"
    });
@@ -32,4 +34,4 @@ function getGithub() {
       });
       return github;
    });
-}
+})();

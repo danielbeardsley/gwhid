@@ -2,7 +2,7 @@ var childProcess  = require("child_process");
 var Promise       = require("promise");
 
 /**
- * REturns a promise for a github api token from the git config under
+ * Returns a promise for a github api token from the git config under
  * github.token.
  */
 module.exports = {

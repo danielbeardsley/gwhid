@@ -31,6 +31,9 @@ function getActivity(github, user) {
  */
 function addNextPageFunction(results) {
    return githubPromise.then(function(github) {
+      if (!github.hasNextPage(results)) {
+         return Promise.resolve();
+      }
       results.nextPage = function() {
          return github.custom.getNextPage(results)
          .then(addNextPageFunction);
@@ -47,7 +50,7 @@ var githubPromise = (function getGithub() {
 
    github.custom = {
       getEventsFromUser: Promise.denodeify(github.events.getFromUser),
-      getNextPage:       Promise.denodeify(github.getNextPage)
+      getNextPage:       Promise.denodeify(github.getNextPage.bind(github))
    };
 
    return GitConfig.getToken().then(function(token) {

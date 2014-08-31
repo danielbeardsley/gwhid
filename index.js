@@ -1,7 +1,7 @@
-var Activity = require('./activity');
+var ActivityStream = require('./activity-stream.js');
 
-Activity.get().done(function(events) {
-   console.log("Got me some events: " + events.length);
-   // console.dir(events);
-   // console.log(event.repo.name + ": " + event.type);
+var eventsStream = new ActivityStream();
+eventsStream.on('readable', function () {
+   var event = eventsStream.read();
+   console.log(event.repo.name + ": " + event.type);
 });

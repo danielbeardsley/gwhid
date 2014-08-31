@@ -1,7 +1,6 @@
 var ActivityStream = require('./activity-stream.js');
+var SimplerEventLogger = require('./simple-event-logger.js');
 
-var eventsStream = new ActivityStream();
-eventsStream.on('readable', function () {
-   var event = eventsStream.read();
-   console.log(event.repo.name + ": " + event.type);
-});
+(new ActivityStream())
+.pipe(new SimplerEventLogger())
+.pipe(process.stdout);

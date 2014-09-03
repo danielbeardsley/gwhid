@@ -21,6 +21,7 @@
   "homepage": "https://github.com/danielbeardsley/gwhid",
   "dependencies": {
     "github": "0.2.1",
-    "promise": "5.0.0"
+    "promise": "5.0.0",
+    "underscore": "1.7.0"
   }
 }

@@ -1,5 +1,6 @@
 var Transform = require('stream').Transform;
 var util = require('util');
+var moment = require('moment');
 var _ = require('underscore');
 
 function EventsToText() {
@@ -11,7 +12,7 @@ util.inherits(EventsToText, Transform);
 
 EventsToText.prototype._transform =
 function(event, encoding, cb) {
-
+   var date = moment(event.created_at);
    var payload = event.payload || {};
    var l = null;
 
@@ -60,10 +61,11 @@ function(event, encoding, cb) {
          break;
    }
 
+   date = date.calendar() + " - ";
    if (l) {
-      this.push(l.join(" ") + "\n");
+      this.push(date + l.join(" ") + "\n");
    } else {
-      this.push(event.repo.name + ": " + event.type + "\n");
+      this.push(date + event.repo.name + ": " + event.type + "\n");
    }
    cb();
 };

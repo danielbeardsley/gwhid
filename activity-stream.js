@@ -22,13 +22,16 @@ function pushNextEvent(stream) {
       if (!events) {
          return stream.push(null);
       }
+      // If we're at the end of the current page of events,
+      // load some more.
       if (!events[stream.eventIndex]) {
          stream.eventsPromise = events.nextPage();
          stream.eventIndex = 0;
          pushNextEvent(stream);
+      } else {
+         stream.push(events[stream.eventIndex]);
+         stream.eventIndex++;
       }
-      stream.push(events[stream.eventIndex]);
-      stream.eventIndex++;
    });
 }
 

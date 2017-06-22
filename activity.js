@@ -4,10 +4,10 @@ var Promise   = require("promise");
 var userPromise = GitConfig.getGithubUser();
 
 module.exports = {
-   get: function() {
+   get: function(org) {
       return githubPromise.then(function(github) {
          return userPromise.then(function(user) {
-            return getActivity(github, user);
+            return getActivity(github, user, org);
          });
       });
    }
@@ -17,10 +17,17 @@ module.exports = {
  * Given a github instance and a user, returns a Promise for the first page of
  * event.
  */
-function getActivity(github, user) {
-   var options = {user:user};
-   return github.custom.getEventsFromUser(options)
-   .then(addNextPageFunction);
+function getActivity(github, user, org) {
+   var options = {
+      user:user,
+      org: org
+   }, events;
+   if (org) {
+      events = github.custom.getEventsFromOrg(options);
+   } else {
+      events = github.custom.getEventsFromUser(options);
+   }
+   return events.then(addNextPageFunction);
 }
 
 /**
@@ -50,6 +57,7 @@ var githubPromise = (function getGithub() {
 
    github.custom = {
       getEventsFromUser: Promise.denodeify(github.events.getFromUser),
+      getEventsFromOrg:  Promise.denodeify(github.events.getFromUserOrg),
       getNextPage:       Promise.denodeify(github.getNextPage.bind(github))
    };
 

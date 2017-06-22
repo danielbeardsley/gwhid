@@ -4,10 +4,12 @@ var util = require('util');
 
 /**
  * Readable stream that emits event objects from the github events api for a
- * given user
+ * given user (or an entire Organization if provided)
+ *
+ * Note: the current user must be a member of the Org if it's provided.
  */
-function ActivityStream() {
-   this.eventsPromise = Activity.get();
+function ActivityStream(org) {
+   this.eventsPromise = Activity.get(org);
    this.eventIndex = 0;
    Readable.call(this, {objectMode:true});
 }

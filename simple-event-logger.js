@@ -59,14 +59,19 @@ function(event, encoding, cb) {
       case "PullRequestReviewCommentEvent":
          l = ['Commented on a pull diff:', payload.pull_request.title, 'at', payload.comment.html_url ];
          break;
+
+   }
+
+   if (!l) {
+      l = [event.repo.name + ":", event.type ];
+   }
+
+   if (event.actor && event.actor.login) {
+      l.unshift(event.actor.login);
    }
 
    date = date.calendar() + " - ";
-   if (l) {
-      this.push(date + l.join(" ") + "\n");
-   } else {
-      this.push(date + event.repo.name + ": " + event.type + "\n");
-   }
+   this.push(date + l.join(" ") + "\n");
    cb();
 };
 

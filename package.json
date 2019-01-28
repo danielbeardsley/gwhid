@@ -1,6 +1,6 @@
 {
   "name": "gwhid",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "github-what-have-i-done: cli output of the github private events feed",
   "main": "index.js",
   "scripts": {

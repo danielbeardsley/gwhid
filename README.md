@@ -10,6 +10,12 @@ the course of a day.
 
 ### Example
 
+Get an oauth api token from the web and store it in you git config
+
+    macbook 01:49 ~/projects/gwhid ▶  git config --global github.token "$token"
+
+Then run the app:
+
     macbook 01:49 ~/projects/gwhid ▶  node index.js | head -n 30 | cut -c 1-38
     Today at 1:15 AM - Pushed 1 commits to
     Today at 12:55 AM - Pushed 1 commits t

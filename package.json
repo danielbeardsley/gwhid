@@ -1,8 +1,9 @@
 {
   "name": "gwhid",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "github-what-have-i-done: cli output of the github private events feed",
   "main": "index.js",
+  "bin": "bin/gwhid",
   "scripts": {
     "test": "npm test"
   },

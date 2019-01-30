@@ -61,12 +61,8 @@ function(event, encoding, cb) {
          break;
    }
 
-   date = date.calendar() + " - ";
-   if (l) {
-      this.push(date + l.join(" ") + "\n");
-   } else {
-      this.push(date + event.repo.name + ": " + event.type + "\n");
-   }
+   var message = l ? l.join(" ") : event.type;
+   this.push(date.calendar() + " - " + event.repo.name + ": " + message + "\n");
    cb();
 };
 

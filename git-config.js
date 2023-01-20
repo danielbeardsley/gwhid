@@ -1,5 +1,4 @@
 var childProcess  = require("child_process");
-var Promise       = require("promise");
 
 /**
  * Returns a promise for a github api token from the git config under
@@ -20,7 +19,7 @@ function getGitConfig(keyName) {
       childProcess.execFile('git', ['config', keyName], {}, 
       function(err, stdout, stderr) {
          if (err || stdout.length < 1) {
-            return reject(stderr);
+            return reject("Config entry " + keyName + " not found\n" + stderr);
          }
 
          resolve(stdout.toString().trim());

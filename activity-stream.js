@@ -7,7 +7,7 @@ var util = require('util');
  * given user
  */
 function ActivityStream() {
-   this.eventsPromise = Activity.get();
+   this.eventsPromise = Activity.get().catch(console.log);
    this.eventIndex = 0;
    Readable.call(this, {objectMode:true});
 }
@@ -18,7 +18,7 @@ ActivityStream.prototype._read = function () {
 };
 
 function pushNextEvent(stream) {
-   stream.eventsPromise.done(function(events) {
+   stream.eventsPromise.then(function(events) {
       if (!events) {
          return stream.push(null);
       }
@@ -32,6 +32,8 @@ function pushNextEvent(stream) {
          stream.push(events[stream.eventIndex]);
          stream.eventIndex++;
       }
+   }).catch((err) => {
+      console.log(err);
    });
 }
 

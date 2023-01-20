@@ -21,9 +21,9 @@
   },
   "homepage": "https://github.com/danielbeardsley/gwhid",
   "dependencies": {
-    "github": "0.2.1",
+    "@octokit/request": "^6.2.2",
+    "moment": ">=2.19.3",
     "promise": "5.0.0",
-    "underscore": "1.7.0",
-    "moment": ">=2.19.3"
+    "underscore": "1.7.0"
   }
 }

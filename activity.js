@@ -1,6 +1,5 @@
 var GitConfig = require('./git-config.js');
-var GitHubApi = require('github');
-var Promise   = require("promise");
+const { request } = require("@octokit/request");
 var userPromise = GitConfig.getGithubUser();
 
 module.exports = {
@@ -9,7 +8,7 @@ module.exports = {
          return userPromise.then(function(user) {
             return getActivity(github, user);
          });
-      });
+      }).catch(console.log);
    }
 };
 
@@ -18,8 +17,7 @@ module.exports = {
  * event.
  */
 function getActivity(github, user) {
-   var options = {user:user};
-   return github.custom.getEventsFromUser(options)
+   return github.custom.getEventsFromUser(user)
    .then(addNextPageFunction);
 }
 
@@ -30,34 +28,27 @@ function getActivity(github, user) {
  * Returns the passed result set.
  */
 function addNextPageFunction(results) {
-   return githubPromise.then(function(github) {
-      if (!github.hasNextPage(results)) {
-         return Promise.resolve();
-      }
-      results.nextPage = function() {
-         return github.custom.getNextPage(results)
-         .then(addNextPageFunction);
-      };
-      return results;
-   });
+   results.nextPage = function() {
+      return Promise.resolve(null);
+   };
+   return results;
 }
 
 
 var githubPromise = (function getGithub() {
-   var github = new GitHubApi({
-       version: "3.0.0"
-   });
-
-   github.custom = {
-      getEventsFromUser: Promise.denodeify(github.events.getFromUser),
-      getNextPage:       Promise.denodeify(github.getNextPage.bind(github))
-   };
-
    return GitConfig.getToken().then(function(token) {
-      github.authenticate({
-         type: "oauth",
-         token: token
+      const githubRequest = request.defaults({
+         headers: {
+            authorization: "token " + token,
+         },
+         per_page: 100,
       });
-      return github;
+      githubRequest.custom = {
+         getEventsFromUser: (user) => {
+            return githubRequest("GET /users/{user}/events", {user: user})
+               .then((result) => result.data);
+         }
+      };
+      return githubRequest;
    });
 })();

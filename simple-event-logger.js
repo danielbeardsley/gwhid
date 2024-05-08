@@ -17,14 +17,34 @@ function(event, encoding, cb) {
    var l = null;
 
    switch (event.type) {
+      case "IssuesEvent":
+         l = [payload.action, "issue", payload.issue.title, payload.issue.html_url];
+         break;
+
+      case "PullRequestReviewEvent":
+         l = [payload.action, "pull review on", payload.pull_request.title, payload.pull_request.html_url];
+         break;
+
+      case "PullRequestReviewCommentEvent":
+         l = ["Commented on pull review ", payload.pull_request.title, payload.pull_request.html_url];
+         break;
+
+      case "GollumEvent":
+         const wiki = payload.pages[0];
+         l = ["Edited Wiki:", wiki.page_name, wiki.html_url];
+         break;
+
       case "PushEvent": 
          var branch = _.last(payload.ref.split('/'));
-         l = ["Pushed", payload.size, "commits to",  branch];
+         if (payload.before === "0000000000000000000000000000000000000000") {
+            l = ["Pushed a new branch:", branch];
+         } else {
+            l = ["Pushed", payload.size, "commits to",  branch];
+         }
          break;
 
       case "PullRequestEvent": 
          var pull = payload.pull_request;
-         // console.dir(event);
          var pullInfo = "pull \"" + pull.title + "\" at " + pull.html_url;
 
          switch (payload.action) {

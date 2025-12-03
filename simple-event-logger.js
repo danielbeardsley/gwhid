@@ -22,11 +22,11 @@ function(event, encoding, cb) {
          break;
 
       case "PullRequestReviewEvent":
-         l = [payload.action, "pull review on", payload.pull_request.title, payload.pull_request.html_url];
+         l = [payload.action, "pull review on", payload.pull_request.head.ref, payload.pull_request.html_url];
          break;
 
       case "PullRequestReviewCommentEvent":
-         l = ["Commented on pull review ", payload.pull_request.title, payload.pull_request.html_url];
+         l = ["Commented on pull review ", payload.pull_request.head.ref, payload.pull_request.html_url];
          break;
 
       case "GollumEvent":
@@ -45,7 +45,7 @@ function(event, encoding, cb) {
 
       case "PullRequestEvent": 
          var pull = payload.pull_request;
-         var pullInfo = "pull \"" + pull.title + "\" at " + pull.html_url;
+         var pullInfo = "pull \"" + (pull.title || pull.head.ref) + "\" at " + pull.html_url;
 
          switch (payload.action) {
             case 'opened':
@@ -73,11 +73,11 @@ function(event, encoding, cb) {
          break;
 
       case "IssueCommentEvent": 
-         l = ['Commented on an issue:', payload.issue.title, 'at', payload.comment.html_url ];
+         l = ['Commented on an issue:', (payload.issue.title || payload.issue.number), 'at', payload.comment.html_url ];
          break;
 
       case "PullRequestReviewCommentEvent":
-         l = ['Commented on a pull diff:', payload.pull_request.title, 'at', payload.comment.html_url ];
+         l = ['Commented on a pull diff:', (payload.pull_request.title || payload.pull_request.head.ref), 'at', payload.comment.html_url ];
          break;
    }
 

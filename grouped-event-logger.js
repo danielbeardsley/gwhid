@@ -1,5 +1,6 @@
 var Transform = require('stream').Transform;
 var util = require('util');
+var moment = require('moment');
 var _ = require('underscore');
 
 function GroupedEventLogger() {
@@ -33,14 +34,13 @@ function(event, encoding, cb) {
                action = "Opened: " + pull.html_url;
                break;
             case 'closed':
-               if (pull.merged) {
-                  action = "Merged: " + pull.html_url;
-               } else {
-                  action = "Closed: " + pull.html_url;
-               }
+               action = "Closed: " + pull.html_url;
+               break;
+            case 'merged':
+               action = "Merged: " + moment(event.created_at).calendar();
                break;
             default:
-               action = payload.action + ": " + pull.html_url;
+               action = payload.action.charAt(0).toUpperCase() + payload.action.slice(1) + ": " + (pull.html_url || moment(event.created_at).calendar());
          }
          break;
 

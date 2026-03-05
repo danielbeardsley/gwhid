@@ -138,9 +138,21 @@ GroupedEventLogger.prototype._formatHeading = function(group) {
    return heading;
 };
 
+GroupedEventLogger.prototype._repoFromKey = function(key) {
+   return key.split(":")[0];
+};
+
 GroupedEventLogger.prototype._flush = function(cb) {
-   for (var i = 0; i < this.groupOrder.length; i++) {
-      var key = this.groupOrder[i];
+   var self = this;
+   // Sort keys by repo name, preserving insertion order within each repo
+   var sorted = this.groupOrder.slice().sort(function(a, b) {
+      var repoA = self._repoFromKey(a);
+      var repoB = self._repoFromKey(b);
+      return repoA.localeCompare(repoB);
+   });
+
+   for (var i = 0; i < sorted.length; i++) {
+      var key = sorted[i];
       var group = this.groups.get(key);
       this.push("## " + this._formatHeading(group) + "\n");
       for (var j = 0; j < group.actions.length; j++) {

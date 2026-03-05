@@ -39,7 +39,9 @@ function(event, encoding, cb) {
          if (payload.before === "0000000000000000000000000000000000000000") {
             l = ["Pushed a new branch:", branch];
          } else {
-            l = ["Pushed", payload.size, "commits to",  branch];
+            l = payload.size
+               ? ["Pushed", payload.size, "commit" + (payload.size === 1 ? "" : "s"), "to", branch]
+               : ["Pushed commits to", branch];
          }
          break;
 

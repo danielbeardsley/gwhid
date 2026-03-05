@@ -83,7 +83,11 @@ function(event, encoding, cb) {
          if (payload.before === "0000000000000000000000000000000000000000") {
             action = "Pushed new branch";
          } else {
-            action = "Pushed " + payload.size + " commit" + (payload.size === 1 ? "" : "s");
+            if (payload.size) {
+               action = "Pushed " + payload.size + " commit" + (payload.size === 1 ? "" : "s");
+            } else {
+               action = "Pushed commits";
+            }
          }
          break;
 

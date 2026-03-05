@@ -125,8 +125,28 @@ function(event, encoding, cb) {
    var group = this.groups.get(key);
    if (!group.heading) group.heading = groupInfo;
    if (isPR) group.isPR = true;
-   group.actions.push(action);
+   group.actions.push({ sort: this._actionSortKey(action), text: action });
    cb();
+};
+
+var ACTION_ORDER = [
+   "Opened",
+   "Created",
+   "Pushed",
+   "Reviewed",
+   "Commented on diff",
+   "Commented",
+   "Labeled",
+   "Assigned",
+   "Merged",
+   "Closed",
+];
+
+GroupedEventLogger.prototype._actionSortKey = function(action) {
+   for (var i = 0; i < ACTION_ORDER.length; i++) {
+      if (action.indexOf(ACTION_ORDER[i]) === 0) return i;
+   }
+   return ACTION_ORDER.length;
 };
 
 GroupedEventLogger.prototype._formatHeading = function(group) {
@@ -155,8 +175,9 @@ GroupedEventLogger.prototype._flush = function(cb) {
       var key = sorted[i];
       var group = this.groups.get(key);
       this.push("## " + this._formatHeading(group) + "\n");
-      for (var j = 0; j < group.actions.length; j++) {
-         this.push("  " + group.actions[j] + "\n");
+      var actions = group.actions.slice().sort(function(a, b) { return a.sort - b.sort; });
+      for (var j = 0; j < actions.length; j++) {
+         this.push("  " + actions[j].text + "\n");
       }
       this.push("\n");
    }

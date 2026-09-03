@@ -14,6 +14,12 @@ function GroupedEventLogger() {
 }
 util.inherits(GroupedEventLogger, Transform);
 
+// The pull_request in an event payload is trimmed and has no html_url, so
+// build the web url from the repo and PR number instead.
+function pullUrl(repo, pull) {
+   return pull.html_url || "https://github.com/" + repo + "/pull/" + pull.number;
+}
+
 GroupedEventLogger.prototype._transform =
 function(event, encoding, cb) {
    var payload = event.payload || {};
@@ -31,16 +37,16 @@ function(event, encoding, cb) {
 
          switch (payload.action) {
             case 'opened':
-               action = "Opened: " + pull.html_url;
+               action = "Opened: " + pullUrl(repo, pull);
                break;
             case 'closed':
-               action = "Closed: " + pull.html_url;
+               action = "Closed: " + pullUrl(repo, pull);
                break;
             case 'merged':
                action = "Merged: " + moment(event.created_at).calendar();
                break;
             default:
-               action = payload.action.charAt(0).toUpperCase() + payload.action.slice(1) + ": " + (pull.html_url || moment(event.created_at).calendar());
+               action = payload.action.charAt(0).toUpperCase() + payload.action.slice(1) + ": " + moment(event.created_at).calendar();
          }
          break;
 

@@ -47,20 +47,23 @@ function(event, encoding, cb) {
 
       case "PullRequestEvent": 
          var pull = payload.pull_request;
-         var pullInfo = "pull \"" + (pull.title || pull.head.ref) + "\" at " + pull.html_url;
+         // The payload's pull_request is trimmed and has no html_url.
+         var pullUrl = pull.html_url ||
+            "https://github.com/" + event.repo.name + "/pull/" + pull.number;
+         var pullInfo = "pull \"" + (pull.title || pull.head.ref) + "\" at " + pullUrl;
 
          switch (payload.action) {
             case 'opened':
                l = ["Opened", pullInfo];
                break;
-            case 'closed':
-               if (pull.merged) {
-                  l = ["Merged", pullInfo];
-               } else {
-                  l = ["Closed", pullInfo];
-               }
+            case 'merged':
+               l = ["Merged", pullInfo];
                break;
-
+            case 'closed':
+               l = [pull.merged ? "Merged" : "Closed", pullInfo];
+               break;
+            default:
+               l = [payload.action, pullInfo];
          }
          break;
 

@@ -123,13 +123,18 @@ function(event, encoding, cb) {
    }
 
    if (!this.groups.has(key)) {
-      this.groups.set(key, { heading: null, isPR: false, actions: [] });
+      this.groups.set(key, { heading: null, isPR: false, actions: [], seen: new Set() });
       this.groupOrder.push(key);
    }
    var group = this.groups.get(key);
    if (!group.heading) group.heading = groupInfo;
    if (isPR) group.isPR = true;
-   group.actions.push({ sort: this._actionSortKey(action), text: action });
+   // Github emits separate 'created' and 'updated' events for the same review,
+   // which render as identical lines, so only keep the first of each.
+   if (!group.seen.has(action)) {
+      group.seen.add(action);
+      group.actions.push({ sort: this._actionSortKey(action), text: action });
+   }
    cb();
 };
 

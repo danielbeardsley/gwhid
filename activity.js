@@ -2,6 +2,8 @@ var GitConfig = require('./git-config.js');
 const { request } = require("@octokit/request");
 var userPromise = GitConfig.getGithubUser();
 
+var PER_PAGE = 100;
+
 module.exports = {
    get: function() {
       return githubPromise.then(function(github) {
@@ -18,18 +20,43 @@ module.exports = {
  */
 function getActivity(github, user) {
    return github.custom.getEventsFromUser(user)
-   .then(addNextPageFunction);
+   .then(function(response) {
+      return addNextPageFunction(github, response);
+   });
 }
 
 /**
- * Takes a github result set and adds a 'nextPage' function that returns a
- * promise for the next page of results.
+ * Pulls the rel="next" url out of a Link response header, or null if this is
+ * the last page.
+ */
+function nextPageUrl(link) {
+   var match = /<([^>]+)>;\s*rel="next"/.exec(link || '');
+   return match ? match[1] : null;
+}
+
+/**
+ * Takes a github response and returns its events, with a 'nextPage' function
+ * that returns a promise for the next page of results, or for null once there
+ * are no more.
+ *
+ * We follow the Link header rather than counting pages: github serves at most
+ * three pages of a user's events and answers anything past that with a 422.
+ * Page sizes are also ragged -- events are filtered out after paging, so a
+ * page shorter than PER_PAGE is not necessarily the last one.
  *
  * Returns the passed result set.
  */
-function addNextPageFunction(results) {
+function addNextPageFunction(github, response) {
+   var results = response.data;
+   var next = nextPageUrl(response.headers.link);
+
    results.nextPage = function() {
-      return Promise.resolve(null);
+      if (!next) {
+         return Promise.resolve(null);
+      }
+      return github("GET " + next).then(function(result) {
+         return addNextPageFunction(github, result);
+      });
    };
    return results;
 }
@@ -41,12 +68,13 @@ var githubPromise = (function getGithub() {
          headers: {
             authorization: "token " + token,
          },
-         per_page: 100,
       });
       githubRequest.custom = {
          getEventsFromUser: (user) => {
-            return githubRequest("GET /users/{user}/events", {user: user})
-               .then((result) => result.data);
+            return githubRequest("GET /users/{user}/events", {
+               user: user,
+               per_page: PER_PAGE,
+            });
          }
       };
       return githubRequest;

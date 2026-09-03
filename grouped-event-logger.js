@@ -14,6 +14,12 @@ function GroupedEventLogger() {
 }
 util.inherits(GroupedEventLogger, Transform);
 
+// The pull_request in an event payload is trimmed and has no html_url, so
+// build the web url from the repo and PR number instead.
+function pullUrl(repo, pull) {
+   return pull.html_url || "https://github.com/" + repo + "/pull/" + pull.number;
+}
+
 GroupedEventLogger.prototype._transform =
 function(event, encoding, cb) {
    var payload = event.payload || {};
@@ -31,16 +37,16 @@ function(event, encoding, cb) {
 
          switch (payload.action) {
             case 'opened':
-               action = "Opened: " + pull.html_url;
+               action = "Opened: " + pullUrl(repo, pull);
                break;
             case 'closed':
-               action = "Closed: " + pull.html_url;
+               action = "Closed: " + pullUrl(repo, pull);
                break;
             case 'merged':
                action = "Merged: " + moment(event.created_at).calendar();
                break;
             default:
-               action = payload.action.charAt(0).toUpperCase() + payload.action.slice(1) + ": " + (pull.html_url || moment(event.created_at).calendar());
+               action = payload.action.charAt(0).toUpperCase() + payload.action.slice(1) + ": " + moment(event.created_at).calendar();
          }
          break;
 
@@ -123,13 +129,18 @@ function(event, encoding, cb) {
    }
 
    if (!this.groups.has(key)) {
-      this.groups.set(key, { heading: null, isPR: false, actions: [] });
+      this.groups.set(key, { heading: null, isPR: false, actions: [], seen: new Set() });
       this.groupOrder.push(key);
    }
    var group = this.groups.get(key);
    if (!group.heading) group.heading = groupInfo;
    if (isPR) group.isPR = true;
-   group.actions.push({ sort: this._actionSortKey(action), text: action });
+   // Github emits separate 'created' and 'updated' events for the same review,
+   // which render as identical lines, so only keep the first of each.
+   if (!group.seen.has(action)) {
+      group.seen.add(action);
+      group.actions.push({ sort: this._actionSortKey(action), text: action });
+   }
    cb();
 };
 
